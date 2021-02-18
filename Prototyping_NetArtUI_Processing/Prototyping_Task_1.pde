@@ -18,9 +18,9 @@ Line[] lines = new Line[25];
 
 
 int cb()
-      {
-        return (floor(random(100, 255)));
-      }
+{
+  return (floor(random(100, 255)));
+}
 
 //int[] xPos = {100, 120, 600, 800};
 
@@ -28,14 +28,6 @@ void setup()
 {
   size(900, 800);
   background((floor(random(225, 255))), (floor(random(70, 90))), (floor(random(20, 50))));
-  //for (int i = 0; i < xMax; i += xMax / 10) 
-  //{
-  //  background((floor(random(225, 255))), (floor(random(70, 90))), (floor(random(20, 50))));
-  //  for (int ii = 0; ii < yMax; ii += yMax / 10) 
-  //  {
-  //    background((floor(random(200, 255))), (floor(random(70, 110))), (floor(random(20, 80))));
-  //  }
-  //}
   
   print(rndNum);
   
