@@ -1,6 +1,5 @@
-# IPDev-Prototyping-P5-WebSockets---MaxMSP
+# IPDev-Prototyping
 IPDev Prototyping code repositories for all prototyping/experimenting stages throughout the process of developing my project for Interactive Project Development module (871P4).
 
-
-This repo documents the code from my intial experiments with creating a client-server and cross-platfrom communication via OSC between P5.js and MaxMSP. These experiments are the inital stages of developing my primitive project concept 'Network Loops' (working title), an interactive sound installation exploring the social interaction and interconnectivty of locative media and its predominant forms of interactivity and media devices.
+This repo documents any code from my prototyping stages in the inital development/experimentation of my preliminary project concept 'Network Loops' (working title), an interactive sound installation exploring the social interaction and interconnectivty of locative media and its predominant forms of interactivity and media devices.
 
