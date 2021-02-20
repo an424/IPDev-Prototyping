@@ -8,6 +8,8 @@ String ipsum = "ipsum ipsum";
 int rndNum = floor(random(20, 40));
 
 Circle[] circ  = new Circle[4];
+int circleXPos = 450;
+int circleYPos = 400;
 int[] circleWidth = {620, 480, 340, 300};
 int[] circleHeight = {620, 480, 340, 300};
 
@@ -22,12 +24,14 @@ int cb()
   return (floor(random(100, 255)));
 }
 
-//int[] xPos = {100, 120, 600, 800};
+boolean clicked = false;
+int clickTime = 0;
 
 void setup()
 {
   size(900, 800);
   background((floor(random(225, 255))), (floor(random(70, 90))), (floor(random(20, 50))));
+  print(rndNum);
   
   print(rndNum);
   
@@ -85,6 +89,21 @@ void draw()
   for (int i = 0; i < circ.length; i++)
   {
     circ[i].display();
+    
+    if(mouseX > circleXPos - (circleWidth[i] / 2.25) && mouseX < circleXPos + (circleWidth[i] / 2.25) &&           
+            mouseY < circleYPos + (circleHeight[i] / 2.25) && mouseY > circleYPos - (circleHeight[i] / 2.25))
+    {
+      if (clickTime + (1 * 1000) < millis())
+      {
+         clicked = false;
+         if (mousePressed && !clicked)
+         { 
+           circ[i].changeColour();
+           clickTime = millis();
+           clicked = true;
+         }
+      }
+    }
   }
 }
 
@@ -119,6 +138,11 @@ class Circle
     noStroke();
     ellipse(x, y, w, h);
     //print(rndColour);
+  }
+  
+  void changeColour()
+  {
+    c = color(rndColour(), rndColour(), rndColour(), (rndColour() / 2));
   }
 }
 
