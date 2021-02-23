@@ -98,7 +98,8 @@ function draw()
     if(mouseX > circleXPos - (circleWidth[i] / 2.25) && mouseX < circleXPos + (circleWidth[i] / 2.25) &&           
             mouseY < circleYPos + (circleHeight[i] / 2.25) && mouseY > circleYPos - (circleHeight[i] / 2.25))
     {
-      if (clickTime + (1 * 1000) < millis())
+//       if (clickTime + (1 * 1000) < millis())
+      setTimeout(function delayTime)
       {
          clicked = false;
          if (mouseIsPressed && !clicked)
@@ -107,7 +108,7 @@ function draw()
            clickTime = millis();
            clicked = true;
          }
-      }
+      }, 1000);
     }
   }
 }
