@@ -1,3 +1,11 @@
+import oscP5.*;
+import netP5.*;
+
+OscP5 oscP5;
+NetAddress server;
+
+String message = "/touch/";
+OscMessage msg;
 
 Circles circle;
 int numChildren = 6;
@@ -15,14 +23,21 @@ void setup()
 {
   size(1000, 900);
   background(70, 230, 135);
+  
+  oscP5 = new OscP5(this, 7575);
+  server = new NetAddress("192.168.0.11", 3743);
+  msg = new OscMessage(message);
+  
   circle = new Circles(xPos, yPos, radius, size);
   circle.drawCircles();
 }
 
 void draw()
 {
-   circle.onCollision();
+  circle.onCollision();
 }
+
+float[] newRadius = {106.787108, 142.38281, 189.84375, 253.125, 337.5, 450.0, 600.0};
 
 class Circles
 {
@@ -30,8 +45,12 @@ class Circles
   int y;
   float r;
   float s;
+  color c;
   
-  float[] newRadius = {450.0, 337.5, 253.125, 189.84375, 142.38281, 106.787108};
+  private int rndColour()
+  {
+    return (floor(random(125, 225)));
+  }
   
   Circles[] circles = new Circles[0];
   
@@ -40,6 +59,8 @@ class Circles
     x = xPos;
     y = yPos;
     recursive(radius, size);
+    
+    c = color(205, 255, 155);
     
     if(r > 180)
     {
@@ -61,7 +82,7 @@ class Circles
   {
     noFill();
     strokeWeight(s);
-    stroke(205, 255, 155);
+    stroke(c);
     ellipse(x, y, r, r);
     for (int i = 0; i < circles.length; i++)
     {
@@ -72,18 +93,27 @@ class Circles
   
   void onCollision()
   {
+    int[] values = {6, 5, 4, 3, 2, 1};
+    
     for (int i = 0; i < numChildren; i++)
     {
-      if(mouseX > x - newRadius[i] && mouseX < x + newRadius[i] && 
-          mouseY < y + newRadius[i] && mouseY > y - newRadius[i])
+      if(mouseX > x - (newRadius[i] / 2) && mouseX < x + (newRadius[i] / 2) && 
+          mouseY < y + (newRadius[i] / 2) && mouseY > y - (newRadius[i] / 2))
       {
         if (clickTime + (1 * 500) < millis())
         {
+          if (msg.get(1) != null)
+           {
+             println("set");
+             msg.clear();
+           }
            clicked = false;
            if (mousePressed && !clicked)
            { 
-             print("Clicked");
-             //circ[i].changeColour();
+             println(values[i]);
+             //println("Clicked :" + circles[i]);
+             oscSend(values[i]);
+             circles[i].changeColour();
              clickTime = millis();
              clicked = true;
            }
@@ -91,4 +121,17 @@ class Circles
       }
     }
   }
+  
+  int changeColour()
+  {
+    c = color(rndColour(), rndColour(), rndColour());
+    return c;
+  }
+}
+
+
+void oscSend(int val)
+{
+  msg.add(val);
+  oscP5.send(msg, server);
 }
