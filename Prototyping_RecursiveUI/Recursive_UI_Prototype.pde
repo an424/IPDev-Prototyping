@@ -1,5 +1,7 @@
 import oscP5.*;
 import netP5.*;
+import gohai.simpletouch.*;
+import processing.io.*;
 
 OscP5 oscP5;
 NetAddress server;
@@ -10,8 +12,8 @@ OscMessage msg;
 Circles circle;
 int numChildren = 6;
 
-int xPos = 500;
-int yPos = 450;
+int xPos;
+int yPos;
 float radius = 800;
 float size = 40;
 
@@ -21,8 +23,12 @@ int clickTime = 0;
 
 void setup()
 {
-  size(1000, 900);
+  fullScreen();
+  //noCursor();
   background(70, 230, 135);
+  
+  xPos = displayWidth / 2;  
+  yPos = displayHeight / 2;
   
   oscP5 = new OscP5(this, 7575);
   server = new NetAddress("192.168.0.11", 3743);
