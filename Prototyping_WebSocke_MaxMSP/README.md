@@ -1,1 +1,1 @@
-p5.js - Max/MSP communication via web sockets.
+All project files for the initial testing stages of a client to server communication via web sockets via socket.io through an express server. This task was undertaken to test the functionality of communicating interactions from a web-page (p5.js skecth) as control values to a server within Max/MSP where these values control parameters within Max.
