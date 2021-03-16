@@ -1,0 +1,40 @@
+html, body {
+  	margin: 5px;
+  	padding: 5px;
+  	background-color: #b3ffe9;
+}
+
+@media only screen and (orientation:portrait){
+  #turn{ display:block; }
+  #container{ display:none; }
+}
+@media only screen and (orientation:landscape){
+  #turn{ display:none; }
+  #container{ display:block; }
+}
+
+canvas {
+  	display: block;
+  	margin: auto;
+  	padding: 10px;/*50px 100px 50px;;*/
+  	/*background-color: #b3ffe9;*/
+}
+
+.heading {
+	position: fixed;
+	left: 0px;
+  	/*text-align: left;*/
+  	top: 0px;
+  	color: black;
+  	font-family: Helvetica Neue, Arial;
+  	font-size: 160%;
+}
+
+.subHeading {
+  	/*text-align: left;*/
+  	position: fixed;
+  	top: 80px;
+	  left: 0px;
+  	font-family: Helvetica Neue, Arial;
+  	font-size: 140%;
+}
