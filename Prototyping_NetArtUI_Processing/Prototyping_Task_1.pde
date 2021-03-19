@@ -1,120 +1,80 @@
 
-int xMax = 900;
-int yMax = 800;
+import oscP5.*;
+import netP5.*;
+import gohai.simpletouch.*;
+//import processing.io.*;
 
-String lorem = "lorem lorem";
-String ipsum = "ipsum ipsum";
-  
-int rndNum = floor(random(20, 40));
+OscP5 oscP5;
+NetAddress server;
 
-Circle[] circ  = new Circle[4];
-int circleXPos = 450;
-int circleYPos = 400;
-int[] circleWidth = {620, 480, 340, 300};
-int[] circleHeight = {620, 480, 340, 300};
+SimpleTouch touchscreen;
 
-IpsumText[] ipTxt = new IpsumText[rndNum];
-LoremText[] loTxt = new LoremText[rndNum];
+String message = "/touch/";
+OscMessage msg;
 
-Line[] lines = new Line[25];
+Circles circle;
+int numChildren = 6;
 
-
-int cb()
-{
-  return (floor(random(100, 255)));
-}
+int xPos;
+int yPos;
+float radius = 600;
+float size = 40;
 
 boolean clicked = false;
 int clickTime = 0;
 
+
 void setup()
 {
-  size(900, 800);
-  background((floor(random(225, 255))), (floor(random(70, 90))), (floor(random(20, 50))));
-  print(rndNum);
+  fullScreen();
+  noCursor();
+  background(70, 230, 135);
   
-  print(rndNum);
+  String[] devs = SimpleTouch.list();
   
-  for (int i = 0; i < ipTxt.length; i++)
+  for (int i = 0; i < devs.length; i++)
   {
-    int xPos = floor(random(20, 200));
-    int yPos = floor(random(0, 800));
-    ipTxt[i] = new IpsumText(xPos, yPos);
-    
-    loTxt[i] = new LoremText(xPos, yPos);
+    try
+    {
+      touchscreen = new SimpleTouch(this, devs[i]);
+      println("Opened device: " + touchscreen.name());
+    }
+    catch (RuntimeException e)
+    {
+      continue;
+    }
   }
   
-  for (int i = 0; i < lines.length; i++)
+  if (touchscreen == null)
   {
-    int xPos = floor(random(0, xMax));
-    lines[i] = new Line(xPos);
+    println("No input devices");
+    exit();
   }
   
-  for (int i = 0; i < circ.length; i++)
-  {
-    circ[i] = new Circle(450, 400, circleWidth[i], circleHeight[i]);
-  }
+  xPos = displayWidth / 2;  
+  yPos = displayHeight / 2;
+  
+  oscP5 = new OscP5(this, 7575);
+  server = new NetAddress("192.168.0.11", 3743);
+  msg = new OscMessage(message);
+  
+  circle = new Circles(xPos, yPos, radius, size);
+  circle.drawCircles();
 }
-
-
 
 void draw()
 {
-  
-  for (int x = 0; x < xMax; x += xMax / 5) 
-  {
-      stroke(cb(), cb(), cb(), (cb() / 2));
-      strokeWeight(floor(random(88, 104)));
-      line(x, 0, x, xMax);
-  }
-  
-  for (int i = 0; i < ipTxt.length; i++)
-  {
-    ipTxt[i].displayBox();
-    ipTxt[i].displayText();
-  }
-  
-  for (int i = 0; i < loTxt.length; i++)
-  {
-    loTxt[i].displayBox();
-    loTxt[i].displayText();
-  }
-  
-  for (int i = 0; i < lines.length; i++)
-  {
-    lines[i].displayLine1();
-    lines[i].displayLine2();
-  }
-  
-  for (int i = 0; i < circ.length; i++)
-  {
-    circ[i].display();
-    
-    if(mouseX > circleXPos - (circleWidth[i] / 2.25) && mouseX < circleXPos + (circleWidth[i] / 2.25) &&           
-            mouseY < circleYPos + (circleHeight[i] / 2.25) && mouseY > circleYPos - (circleHeight[i] / 2.25))
-    {
-      if (clickTime + (1 * 1000) < millis())
-      {
-         clicked = false;
-         if (mousePressed && !clicked)
-         { 
-           circ[i].changeColour();
-           clickTime = millis();
-           clicked = true;
-         }
-      }
-    }
-  }
+  circle.onCollision();
 }
 
+float[] newRadius = {106.787108, 142.38281, 189.84375, 253.125, 337.5, 450.0, 600.0};
 
-class Circle
+class Circles
 {
   int x;
   int y;
-  int w;
-  int h;
-  
+  float r;
+  float s;
   color c;
   
   private int rndColour()
@@ -122,143 +82,93 @@ class Circle
     return (floor(random(125, 225)));
   }
   
-  Circle(int xCo, int yCo, int wdth, int hght)
+  Circles[] circles = new Circles[0];
+  
+  Circles(int xPos, int yPos, float radius, float size)
   {
-    x = xCo;
-    y = yCo;
-    w = wdth;
-    h = hght;
+    x = xPos;
+    y = yPos;
+    recursive(radius, size);
     
-    c = color(rndColour(), rndColour(), rndColour(), (rndColour() / 2));
-  }
-  
-  void display()
-  { 
-    fill(c);
-    noStroke();
-    ellipse(x, y, w, h);
-    //print(rndColour);
-  }
-  
-  void changeColour()
-  {
-    c = color(rndColour(), rndColour(), rndColour(), (rndColour() / 2));
-  }
-}
-
-
-class Line
-{
-  int x1;
-  int y1;
-  int x2;
-  int y2;
-  int x3;
-  int y3;
-  int x4;
-  int y4;
-  
-  private int rndColour()
-  {
-    return (floor(random(0, 255)));
-  }
-  
-  Line(int xPos)
-  {
-    for (int x = 0; x < xMax; x += xMax / 10) 
+    c = color(205, 255, 155);
+    
+    if(r > 180)
     {
-      x1 = xPos;
-      y1 = 800;
-      x2 = xPos;
-      y2 = 0;
-      for (int y = 0; y < xMax; y += xMax / 5) 
+      circles = new Circles[numChildren];
+      for (int i = 0; i < numChildren; i++)
       {
-        x3 = (xPos * 2);
-        y3 = 800;
-        x4 = (xPos * 2);
-        y4 = 400;
+        circles[i] = new Circles(x, y, r, s);
       }
     }
   }
   
-  private void displayLine1()
+  void recursive(float radius, float size)
   {
-    stroke(rndColour(), rndColour(), rndColour(), rndColour());
-    strokeWeight(2);
-    line(x1, y1, x2, y2);
-    
+    r = radius * 0.75f;
+    s = size * 0.75f;
   }
   
-  private void displayLine2()
+  void drawCircles()
   {
-    stroke(rndColour(), rndColour(), rndColour(), rndColour());
-    strokeWeight(2);
-    line(x3, y3, x4, y4);
+    noFill();
+    strokeWeight(s);
+    stroke(c);
+    ellipse(x, y, r, r);
+    for (int i = 0; i < circles.length; i++)
+    {
+      circles[i].drawCircles();
+      //newRadius[i] = circles[i].r;
+    }
+  }
+  
+  void onCollision()
+  {
+    int[] values = {6, 5, 4, 3, 2, 1};
+    
+    SimpleTouchEvt touches[] = touchscreen.touches();
+    for (SimpleTouchEvt touch : touches)
+    {
+      println(touch.id);
+    }
+    
+    for (int i = 0; i < numChildren; i++)
+    {
+      if(mouseX > x - (newRadius[i] / 2) && mouseX < x + (newRadius[i] / 2) && 
+          mouseY < y + (newRadius[i] / 2) && mouseY > y - (newRadius[i] / 2))
+      {
+        if (clickTime + (1 * 500) < millis())
+        {
+          if (msg.get(1) != null)
+           {
+             println("set");
+             msg.clear();
+           }
+           clicked = false;
+           if (mousePressed && !clicked)
+           { 
+             println(values[i]);
+             //println("Clicked :" + circles[i]);
+             oscSend(values[i]);
+             circles[i].changeColour();
+             clickTime = millis();
+             clicked = true;
+           }
+        }
+      }
+    }
+  }
+  
+  int changeColour()
+  {
+    c = color(rndColour(), rndColour(), rndColour());
+    return c;
   }
 }
 
 
-class IpsumText
+void oscSend(int val)
 {
-  int x;
-  int y;
-  
-  int size()
-  {
-    return (floor(random(24, 72)));
-  }
-  
-  IpsumText(int xPos, int yPos)
-  {
-    x = xPos;
-    y = yPos;
-  }
-  
-  private void displayBox()
-  {
-    fill(255, 240, 220, 55);
-    noStroke();
-    rect(x, y, (size() * 5), size());
-  }
-  
-  private void displayText()
-  {
-    fill(55, 80, 255, (size() * 2));
-    text(ipsum, x, y);
-    textSize(size());
-    
-  }
-}
-
-
-class LoremText
-{
-  int x;
-  int y;
-  
-  int size()
-  {
-    return (floor(random(24, 100)));
-  }
-  
-  LoremText(int xPos, int yPos)
-  {
-    x = (xPos * 7);
-    y = yPos;
-  }
-  
-  private void displayBox()
-  {
-    fill(255, 200, 180, 55);
-    noStroke();
-    rect(x, y, (size() + 100), size());
-  }
-  
-  private void displayText()
-  {
-    fill(155, 80, 255, size());
-    text(lorem, x, y);
-    textSize(size());
-    
-  }
+  msg = new OscMessage(message);
+  msg.add(val);
+  oscP5.send(msg, server);
 }
