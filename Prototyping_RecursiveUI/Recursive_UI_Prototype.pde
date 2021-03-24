@@ -30,7 +30,7 @@ void setup()
 {
   fullScreen();
   //noCursor();
-  background(250, 170, 135);
+  background(255, 115, 100);
   
   String[] devs = SimpleTouch.list();
   
@@ -94,7 +94,7 @@ class Circles
     y = yPos;
     recursive(radius, size);
     
-    c = color(245, 255, 120);
+    c = color(255, 255, 125);
     
     if(r > 180)
     {
