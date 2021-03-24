@@ -1,10 +1,12 @@
 import oscP5.*;
 import netP5.*;
 import gohai.simpletouch.*;
-import processing.io.*;
+//import processing.io.*;
 
 OscP5 oscP5;
 NetAddress server;
+
+SimpleTouch touchscreen;
 
 String message = "/touch/";
 OscMessage msg;
@@ -14,18 +16,42 @@ int numChildren = 6;
 
 int xPos;
 int yPos;
-float radius = 800;
+float radius = 600;
 float size = 40;
 
 boolean clicked = false;
 int clickTime = 0;
+
+//int mX;
+//int mY;
 
 
 void setup()
 {
   fullScreen();
   //noCursor();
-  background(70, 230, 135);
+  background(250, 170, 135);
+  
+  String[] devs = SimpleTouch.list();
+  
+  //for (int i = 0; i < devs.length; i++)
+  //{
+  //  try
+  //  {
+  //    touchscreen = new SimpleTouch(this, devs[i]);
+  //    println("Opened device: " + touchscreen.name());
+  //  }
+  //  catch (RuntimeException e)
+  //  {
+  //    continue;
+  //  }
+  //}
+  
+  //if (touchscreen == null)
+  //{
+  //  println("No input devices");
+  //  exit();
+  //}
   
   xPos = displayWidth / 2;  
   yPos = displayHeight / 2;
@@ -40,7 +66,9 @@ void setup()
 
 void draw()
 {
-  circle.onCollision();
+  float mX = mouseX;
+  float mY = mouseY;
+  circle.onCollision(mX, mY);
 }
 
 float[] newRadius = {106.787108, 142.38281, 189.84375, 253.125, 337.5, 450.0, 600.0};
@@ -66,7 +94,7 @@ class Circles
     y = yPos;
     recursive(radius, size);
     
-    c = color(205, 255, 155);
+    c = color(245, 255, 120);
     
     if(r > 180)
     {
@@ -97,36 +125,53 @@ class Circles
     }
   }
   
-  void onCollision()
+  void onCollision(float mX, float mY)
   {
     int[] values = {6, 5, 4, 3, 2, 1};
+    int intD;
+    
+    //mX = mouseX;
+    //mY = mouseY;
+    
+    //SimpleTouchEvt touches[] = touchscreen.touches();
+    //for (SimpleTouchEvt touch : touches)
+    //{
+    //  println(touch.id);
+    //}
+    
+    float d = dist(mX, mY, x, y);
+    intD = int(d);
     
     for (int i = 0; i < numChildren; i++)
     {
-      if(mouseX > x - (newRadius[i] / 2) && mouseX < x + (newRadius[i] / 2) && 
-          mouseY < y + (newRadius[i] / 2) && mouseY > y - (newRadius[i] / 2))
+      //if (mouseX > x - (newRadius[i] / 2) && mouseX < x + (newRadius[i] / 2) && 
+      //    mouseY < y + (newRadius[i] / 2) && mouseY > y - (newRadius[i] / 2))
+      //if (d > x - (newRadius[i] / 2) && d < x + (newRadius[i] / 2) && 
+      //    d < y + (newRadius[i] / 2) && d > y - (newRadius[i] / 2))
+      if (d < 450 / 2)
       {
-        if (clickTime + (1 * 500) < millis())
-        {
+        //if (clickTime + (1 * 500) < millis())
+        //{
           if (msg.get(1) != null)
            {
              println("set");
              msg.clear();
            }
            clicked = false;
-           if (mousePressed && !clicked)
+           if (mousePressed)
            { 
-             println(values[i]);
-             //println("Clicked :" + circles[i]);
-             oscSend(values[i]);
+             //println(values[i]);
+             println("Clicked :" + d);
+             //oscSend(values[i]);
+             oscSend(intD);
              circles[i].changeColour();
              clickTime = millis();
-             clicked = true;
+             //clicked = true;
            }
         }
       }
     }
-  }
+  //}
   
   int changeColour()
   {
@@ -138,6 +183,7 @@ class Circles
 
 void oscSend(int val)
 {
+  msg = new OscMessage(message);
   msg.add(val);
   oscP5.send(msg, server);
 }
