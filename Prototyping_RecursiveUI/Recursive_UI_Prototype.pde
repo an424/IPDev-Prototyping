@@ -34,24 +34,24 @@ void setup()
   
   String[] devs = SimpleTouch.list();
   
-  //for (int i = 0; i < devs.length; i++)
-  //{
-  //  try
-  //  {
-  //    touchscreen = new SimpleTouch(this, devs[i]);
-  //    println("Opened device: " + touchscreen.name());
-  //  }
-  //  catch (RuntimeException e)
-  //  {
-  //    continue;
-  //  }
-  //}
+  for (int i = 0; i < devs.length; i++)
+  {
+    try
+    {
+      touchscreen = new SimpleTouch(this, devs[i]);
+      println("Opened device: " + touchscreen.name());
+    }
+    catch (RuntimeException e)
+    {
+      continue;
+    }
+  }
   
-  //if (touchscreen == null)
-  //{
-  //  println("No input devices");
-  //  exit();
-  //}
+  if (touchscreen == null)
+  {
+    println("No input devices");
+    exit();
+  }
   
   xPos = displayWidth / 2;  
   yPos = displayHeight / 2;
@@ -130,14 +130,19 @@ class Circles
     int[] values = {6, 5, 4, 3, 2, 1};
     int intD;
     
-    //mX = mouseX;
-    //mY = mouseY;
+    // mX = mouseX;
+    // mY = mouseY;
     
-    //SimpleTouchEvt touches[] = touchscreen.touches();
+    SimpleTouchEvt touches[] = touchscreen.touches();
     //for (SimpleTouchEvt touch : touches)
     //{
     //  println(touch.id);
     //}
+    
+    for (int i = 0; i < touches.length; i++)
+    {
+      
+    }
     
     float d = dist(mX, mY, x, y);
     intD = int(d);
