@@ -8,8 +8,8 @@ NetAddress server;
 
 SimpleTouch touchscreen;
 
-String message = "/touch/";
-OscMessage msg;
+String[] touchMessage = {"/touch/1", "/touch/2", "/touch/3", "/touch/4", "/touch/5", "/touch/6"};
+OscMessage[] tchMsg = new OscMessage[6];
 
 Circles circle;
 int numChildren = 6;
@@ -22,14 +22,17 @@ float size = 40;
 boolean clicked = false;
 int clickTime = 0;
 
-//int mX;
-//int mY;
+//FloatList tX;
+//FloatList tY;
+
+int mX;
+int mY;
 
 
 void setup()
 {
   fullScreen();
-  //noCursor();
+  noCursor();
   background(255, 115, 100);
   
   String[] devs = SimpleTouch.list();
@@ -58,7 +61,9 @@ void setup()
   
   oscP5 = new OscP5(this, 7575);
   server = new NetAddress("192.168.0.11", 3743);
-  msg = new OscMessage(message);
+  
+  //tX = new FloatList();
+  //tY = new FloatList();
   
   circle = new Circles(xPos, yPos, radius, size);
   circle.drawCircles();
@@ -70,6 +75,7 @@ void draw()
   float mY = mouseY;
   circle.onCollision(mX, mY);
 }
+
 
 float[] newRadius = {106.787108, 142.38281, 189.84375, 253.125, 337.5, 450.0, 600.0};
 
@@ -128,55 +134,70 @@ class Circles
   void onCollision(float mX, float mY)
   {
     int[] values = {6, 5, 4, 3, 2, 1};
-    int intD;
+    IntList intD;
     
-    // mX = mouseX;
-    // mY = mouseY;
+    FloatList d;
+    FloatList tX;
+    FloatList tY;
+    
+    d = new FloatList();
+    tX = new FloatList();
+    tY = new FloatList();
+    intD = new IntList();
+    
+    mX = mouseX;
+    mY = mouseY; 
+    
     
     SimpleTouchEvt touches[] = touchscreen.touches();
-    //for (SimpleTouchEvt touch : touches)
-    //{
-    //  println(touch.id);
-    //}
     
     for (int i = 0; i < touches.length; i++)
     {
+      tchMsg[i] = new OscMessage(touchMessage[i]);
       
-    }
+      tX.set(i, (map(touches[i].x, 0.0, 1.0, 0.0, displayWidth))); 
+      tY.set(i, (map(touches[i].y, 0.0, 1.0, 0.0, displayHeight))); 
+      //println("touch x = " + tX);
+      //println("touch y = " + tY);
     
-    float d = dist(mX, mY, x, y);
-    intD = int(d);
-    
-    for (int i = 0; i < numChildren; i++)
-    {
-      //if (mouseX > x - (newRadius[i] / 2) && mouseX < x + (newRadius[i] / 2) && 
-      //    mouseY < y + (newRadius[i] / 2) && mouseY > y - (newRadius[i] / 2))
-      //if (d > x - (newRadius[i] / 2) && d < x + (newRadius[i] / 2) && 
-      //    d < y + (newRadius[i] / 2) && d > y - (newRadius[i] / 2))
-      if (d < 450 / 2)
+      d.set(i, (dist((tX.get(i)), (tY.get(i)), x, y)));
+      intD.set(i, (int(d.get(i))));
+      
+      if ((d.get(i)) < 450 / 2)
       {
-        //if (clickTime + (1 * 500) < millis())
-        //{
-          if (msg.get(1) != null)
-           {
-             println("set");
-             msg.clear();
-           }
-           clicked = false;
-           if (mousePressed)
-           { 
-             //println(values[i]);
-             println("Clicked :" + d);
-             //oscSend(values[i]);
-             oscSend(intD);
-             circles[i].changeColour();
+        println("clicked = " + d);
+        //if ((tX.get(i)) > x - (newRadius[i] / 2) && (tX.get(i)) < x + (newRadius[i] / 2) && 
+        //    (tY.get(i)) < y + (newRadius[i] / 2) && (tY.get(i)) > y - (newRadius[i] / 2))
+        //if (d > x - (newRadius[i] / 2) && d < x + (newRadius[i] / 2) && 
+        //    d < y + (newRadius[i] / 2) && d > y - (newRadius[i] / 2))
+        for (int ii = 0; ii < numChildren; ii++) 
+        {
+          //if (clickTime + (1 * 500) < millis())
+          //{
+            if (tchMsg[i].get(1) != null)
+             {
+               println("set");
+               tchMsg[i].clear();
+             }
+             clicked = false;
+             //if (mousePressed)
+             //{ 
+             //println("Clicked :" + d);
+             //oscSend(intD[i]);
+             tchMsg[i].add(intD.get(i));
+             oscP5.send(tchMsg[i], server);
              clickTime = millis();
              //clicked = true;
-           }
+             if ((tX.get(i)) > x - (newRadius[i] / 2) && (tX.get(i)) < x + (newRadius[i] / 2) && 
+                 (tY.get(i)) < y + (newRadius[i] / 2) && (tY.get(i)) > y - (newRadius[i] / 2))
+             {
+               circles[ii].changeColour();
+             }
+             //}
+          }
         }
       }
     }
-  //}
   
   int changeColour()
   {
@@ -186,9 +207,9 @@ class Circles
 }
 
 
-void oscSend(int val)
-{
-  msg = new OscMessage(message);
-  msg.add(val);
-  oscP5.send(msg, server);
-}
+//void oscSend(int val)
+//{
+//  msg = new OscMessage(message);
+//  msg.add(val);
+//  oscP5.send(msg, server);
+//}
