@@ -1,7 +1,7 @@
 import processing.io.*;
 
-int redLEDp = 22;
-int greenLEDp = 27;
+int redLEDp = 27;
+int greenLEDp = 22;
 
 boolean redLED = false;
 boolean greenLED = false;
@@ -16,7 +16,7 @@ color[] c = {
 void setup()
 {
   fullScreen();
-  background(110, 150, 255);
+  background(170, 150, 255);
   //noCursor();
   
   GPIO.pinMode(redLEDp, GPIO.OUTPUT);
@@ -45,12 +45,29 @@ void draw()
 
 void mousePressed()
 {
+  int boxNo;
   for (int i = 0; i < boxes.length; i++)
   {
-    boxes[i].interact();
+    if (i == 0)
+    {
+      boxNo = 1;
+    }
+    else
+    {
+      boxNo = 0;
+    }
+    
+    boxes[i].interact(boxNo);
   }
 }
 
+void mouseReleased()
+{
+  for (int i = 0; i < boxes.length; i++)
+  {
+    boxes[i].released();
+  }
+}
 
 class Box
 {
@@ -69,6 +86,9 @@ class Box
     colour = c;
   }
   
+  boolean redOn;
+  boolean greenOn;
+  
   void display(color c)
   {
     noStroke();
@@ -78,15 +98,43 @@ class Box
     colour = c;
   }
   
-  void interact()
+  void interact(int boxNo)
   {
     if (mouseX > x - w && mouseX < x + w && 
          mouseY < y + h && mouseY > y - h / 2)
     {
-       colour = color(255); 
-       redLED = !redLED;
-       GPIO.digitalWrite(redLEDp, redLED);
-       println("clicked"); 
+      if (boxNo == 0)
+      {
+        colour = color(255); 
+        redLED = !redLED;
+        GPIO.digitalWrite(redLEDp, redLED);
+        redOn = !redOn;
+        println("clicked red"); 
+      }
+      else if (boxNo == 1)
+      {
+        colour = color(255); 
+        greenLED = !greenLED;
+        GPIO.digitalWrite(greenLEDp, greenLED);
+        greenOn = !greenOn;
+        println("clicked green"); 
+      }
+    }
+  }
+  
+  void released()
+  {
+    if (redOn)
+    {
+      redLED = !redLED;
+      GPIO.digitalWrite(redLEDp, redLED);
+      redOn = !redOn;
+    }
+    if (greenOn)
+    {
+      greenLED = !greenLED;
+      GPIO.digitalWrite(greenLEDp, greenLED);
+      greenOn = !greenOn;
     }
   }
 }
